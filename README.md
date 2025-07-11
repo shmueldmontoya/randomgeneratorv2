@@ -187,7 +187,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 📞 Contacto
 
-- **Autor**: [Samuel Antonio Delgado]
+- **Autor**: Samuel Antonio Delgado
 - **Email**: samueladm23@outlook.com
 - **GitHub**: [@shmueldmontoya](https://github.com/shmueldmontoya)
 
