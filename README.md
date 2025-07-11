@@ -142,7 +142,7 @@ random-generator/
 ## 🔧 Personalización
 
 ### Agregar Nuevos Algoritmos
-Para clonar el repositorio o descargarlo y agregar un nuevo algoritmo, edita el objeto `algorithms` en `app.js`:
+Puedes clonar el repositorio o descargarlo y agregar un nuevo algoritmo, edita el objeto `algorithms` en `app.js`:
 
 ```javascript
 tuAlgoritmo: {
