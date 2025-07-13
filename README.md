@@ -142,7 +142,7 @@ random-generator/
 ## 🔧 Personalización
 
 ### Agregar Nuevos Algoritmos
-Puedes clonar el repositorio o descargarlo y agregar un nuevo algoritmo, edita el objeto `algorithms` en `app.js`:
+Para clonar el repositorio o descargarlo y agregar un nuevo algoritmo, edita el objeto `algorithms` en `app.js`:
 
 ```javascript
 tuAlgoritmo: {
@@ -187,7 +187,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 📞 Contacto
 
-- **Autor**: Samuel Antonio Delgado
+- **Autor**: [Samuel Antonio Delgado]
 - **Email**: samueladm23@outlook.com
 - **GitHub**: [@shmueldmontoya](https://github.com/shmueldmontoya)
 

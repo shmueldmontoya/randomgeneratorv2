@@ -97,9 +97,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 }).join(' ');
             },
             reverse: (text) => {
-                return text.split(' ').map(binary => {
-                    return String.fromCharCode(parseInt(binary, 2));
-                }).join('');
+                try {
+                    // Limpiar el texto de caracteres extraños y normalizar espacios
+                    const cleanText = text.replace(/[^01\s]/g, '').replace(/\s+/g, ' ').trim();
+                    if (!cleanText) return '';
+                    
+                    // Dividir por espacios y filtrar cadenas vacías
+                    const binaryChunks = cleanText.split(' ').filter(chunk => chunk.length > 0);
+                    
+                    return binaryChunks.map(binary => {
+                        // Asegurar que cada chunk tenga 8 bits
+                        const paddedBinary = binary.padEnd(8, '0').substring(0, 8);
+                        const charCode = parseInt(paddedBinary, 2);
+                        return String.fromCharCode(charCode);
+                    }).join('');
+                } catch (error) {
+                    return 'Error al decodificar binario';
+                }
             }
         },
         morse: {
@@ -110,7 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
                 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
                 '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
-                '.': '.-.-.-', ',': '--..--', '?': '..--..', '!': '-.-.--', ' ': '/',
+                '.': '.-.-.-', ',': '--..--', '?': '..--..', '!': '-.-.--', ' ': '/', '-': '-....-', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
+                '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.'
             },
             transform: function(text) {
                 // Normalizar tildes y dieresis
@@ -334,10 +349,28 @@ document.addEventListener("DOMContentLoaded", () => {
             return transformedText;
         } else if (algorithm.transform && algorithm.reverse) {
             // Otros algoritmos
-            // Morse, Shift...
             if (currentAlgorithm === 'morse') {
-                // Detectar si es morse
-                return /[\.-]/.test(text.trim()) && /^[\s\.-/]+$/.test(text.trim()) ? algorithm.reverse(text) : algorithm.transform(text);
+                // Detección mejorada para Morse
+                const trimmedText = text.trim();
+                // Verifica si el texto contiene principalmente puntos y guiones
+                const morsePattern = /^[\s\.\-/]+$/;
+                const hasMorseChars = /[\.\-]/.test(trimmedText);
+                const isMorse = morsePattern.test(trimmedText) && hasMorseChars;
+                return isMorse ? algorithm.reverse(text) : algorithm.transform(text);
+            } else if (currentAlgorithm === 'binary') {
+                // Detección mejorada para Binario
+                const trimmedText = text.trim();
+                // Verifica si el texto contiene principalmente 0s y 1s separados por espacios
+                const binaryPattern = /^[01\s]+$/;
+                const hasBinaryChars = /[01]/.test(trimmedText);
+                
+                // Verificación adicional: al menos el 70% del texto debe ser 0s y 1s
+                const binaryChars = (trimmedText.match(/[01]/g) || []).length;
+                const totalChars = trimmedText.replace(/\s/g, '').length;
+                const binaryPercentage = totalChars > 0 ? binaryChars / totalChars : 0;
+                
+                const isBinary = binaryPattern.test(trimmedText) && hasBinaryChars && binaryPercentage >= 0.7;
+                return isBinary ? algorithm.reverse(text) : algorithm.transform(text);
             } else if (currentAlgorithm === 'shift') {
                 // Detectar si es reverso (solo letras)
                 // Si el texto parece cifrado, decodifica
@@ -356,6 +389,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = input.value;
         const result = transformText(text);
         output.value = result;
+        
+        // Mostrar notificación de detección automática
+        if (text.trim()) {
+            const algorithm = algorithms[currentAlgorithm];
+            if (currentAlgorithm === 'morse') {
+                const trimmedText = text.trim();
+                const morsePattern = /^[\s\.\-/]+$/;
+                const hasMorseChars = /[\.\-]/.test(trimmedText);
+                const isMorse = morsePattern.test(trimmedText) && hasMorseChars;
+                if (isMorse) {
+                    notificationSystem.show('Texto Morse detectado - decodificando', 'success');
+                }
+            } else if (currentAlgorithm === 'binary') {
+                const trimmedText = text.trim();
+                const binaryPattern = /^[01\s]+$/;
+                const hasBinaryChars = /[01]/.test(trimmedText);
+                const binaryChars = (trimmedText.match(/[01]/g) || []).length;
+                const totalChars = trimmedText.replace(/\s/g, '').length;
+                const binaryPercentage = totalChars > 0 ? binaryChars / totalChars : 0;
+                const isBinary = binaryPattern.test(trimmedText) && hasBinaryChars && binaryPercentage >= 0.7;
+                if (isBinary) {
+                    notificationSystem.show('Texto binario detectado - decodificando', 'success');
+                }
+            }
+        }
+        
         // Ya no se guarda automáticamente en el historial
         statsSystem.update();
     };
